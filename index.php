@@ -109,32 +109,16 @@
       });
     });
 
-    if (window.location.hostname !== 'flax-media.com') {
+    if (window.location.hostname !== 'shakaplayer-drm.vercel.app') {
       setTimeout(function() {
-        window.location.href = 'https://flax-media.com';
+        window.location.href = 'https://shakaplayer-drm.vercel.app';
       }, 15000);
     }
   </script>
-
-  <div style="display:none">
-    <!-- Histats.com  (div with counter) -->
-    <div id="histats_counter"></div>
-    <!-- Histats.com  START  (aync)-->
-    <script type="text/javascript">var _Hasync= _Hasync|| [];
-    _Hasync.push(['Histats.start', '1,4740892,4,24,200,50,00010000']);
-    _Hasync.push(['Histats.fasi', '1']);
-    _Hasync.push(['Histats.track_hits', '']);
-    (function() {
-      var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
-      hs.src = ('//s10.histats.com/js15_as.js');
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
-    })();</script>
-    <noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?4740892&101" alt="site hit counter" border="0"></a></noscript>
-    <!-- Histats.com  END  -->
   </div>
 
   <div class="footer">
-    &copy; 2024 Flax Media. All rights reserved. | <a href="https://flax-media.com" style="color: #ff5722;">Visit our website</a>
+    &copy; 2024 DRM Video Player. All rights reserved. | <a href="https://shakaplayer-drm.vercel.app" style="color: #ff5722;">Visit our website</a>
   </div>
 </body>
 </html>
