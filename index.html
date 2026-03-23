@@ -30,52 +30,59 @@
   </div>
 
   <script>
-    document.getElementById("playButton").addEventListener("click", async () => {
-      const manifestUri = document.getElementById("manifestUri").value;
-      const clearKeyInput = document.getElementById("clearKey").value;
+  document.getElementById("playButton").addEventListener("click", async () => {
+    const manifestUri = document.getElementById("manifestUri").value;
+    const clearKeyInput = document.getElementById("clearKey").value;
 
-      const video = document.getElementById("video");
-      const ui = video["ui"];
-      const controls = ui.getControls();
-      const player = controls.getPlayer();
+    const video = document.getElementById("video");
 
-      // واجهة تحكم مخصصة
-      ui.configure({
-        controlPanelElements: ["spacer", "rewind", "play_pause", "fast_forward", "playback_rate", "mute", "volume", "time_and_duration", "captions", "language", "quality", "fullscreen", "statistics", "picture_in_picture", "overflow_menu", "skip", "cast", "spacer"],
-        statisticsList: ["width", "height", "playTime", "bufferingTime"],
-        volumeBarColors: { base: "rgba(255,255,255,0.3)", level: "rgba(255,87,34)" },
-        seekBarColors: { base: "#00EC00", buffered: "#fff", played: "#ff5722" }
-      });
+    // ✅ تهيئة Shaka
+    shaka.polyfill.installAll();
 
-      player.addEventListener("error", e => console.error("🎯 Player Error:", e));
+    if (!shaka.Player.isBrowserSupported()) {
+      alert("المتصفح غير مدعوم");
+      return;
+    }
 
-      // إعداد ClearKey متعدد
-      if (clearKeyInput.includes(":")) {
-        const clearKeys = {};
-        const pairs = clearKeyInput.split(",");
-        for (const pair of pairs) {
-          const [keyId, key] = pair.trim().split(":");
-          if (keyId && key) {
-            clearKeys[keyId] = key;
-          }
-        }
+    // ✅ إنشاء player و UI بشكل صحيح
+    const player = new shaka.Player(video);
+    const ui = new shaka.ui.Overlay(player, video.parentElement, video);
+    const controls = ui.getControls();
 
-        player.configure({
-          drm: {
-            clearKeys: clearKeys
-          }
-        });
-      }
-
-      try {
-        await player.load(manifestUri);
-        console.log("✅ Video loaded successfully");
-      } catch (error) {
-        console.error("❌ Failed to load video:", error);
-        alert("حدث خطأ أثناء تحميل الفيديو");
-      }
+    // واجهة تحكم مخصصة (كما هي)
+    ui.configure({
+      controlPanelElements: ["spacer", "rewind", "play_pause", "fast_forward", "playback_rate", "mute", "volume", "time_and_duration", "captions", "language", "quality", "fullscreen", "statistics", "picture_in_picture", "overflow_menu", "skip", "cast", "spacer"],
+      statisticsList: ["width", "height", "playTime", "bufferingTime"],
+      volumeBarColors: { base: "rgba(255,255,255,0.3)", level: "rgba(255,87,34)" },
+      seekBarColors: { base: "#00EC00", buffered: "#fff", played: "#ff5722" }
     });
-  </script>
 
-</body>
-</html>
+    player.addEventListener("error", e => console.error("🎯 Player Error:", e));
+
+    // إعداد ClearKey متعدد
+    if (clearKeyInput.includes(":")) {
+      const clearKeys = {};
+      const pairs = clearKeyInput.split(",");
+      for (const pair of pairs) {
+        const [keyId, key] = pair.trim().split(":");
+        if (keyId && key) {
+          clearKeys[keyId] = key;
+        }
+      }
+
+      player.configure({
+        drm: {
+          clearKeys: clearKeys
+        }
+      });
+    }
+
+    try {
+      await player.load(manifestUri);
+      console.log("✅ Video loaded successfully");
+    } catch (error) {
+      console.error("❌ Failed to load video:", error);
+      alert("حدث خطأ أثناء تحميل الفيديو");
+    }
+  });
+</script>
