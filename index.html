@@ -1,125 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Professional DRM Video Player</title>
-  <link rel="icon" href="https://shakaplayer-drm.vercel.app/favicon.ico">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #1e3c72, #2a5298);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .container {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      width: 80%;
-      max-width: 600px;  
-      height: auto; 
-    }
-    input, button {
-      width: 80%;
-      padding: 10px;
-      margin: 5px 0;
-      border: none;
-      border-radius: 5px;
-    }
-    input {
-      background: rgba(255, 255, 255, 0.8);
-      color: #333;
-    }
-    button {
-      background: #ff5722;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #e64a19;
-    }
-    video {
-      width: 100%;
-      max-width: 640px; 
-      max-height: 380px; 
-      margin-top: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    .hint {
-      font-size: 0.9em;
-      color: #ddd;
-      margin-bottom: 10px;
-    }
-    .footer {
-      margin-top: 20px;
-      font-size: 0.9em;
-      color: #ddd;
-      text-align: center;
-    }
-  </style>
-  <!-- Include Shaka Player library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.2.0/shaka-player.compiled.js"></script>
+  <meta charset="UTF-8" />
+  <title>Shaka DRM Video Player</title>
+  <link rel="icon" href="https://livedash.online/shakaplayer/shaka.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Shaka Player UI -->
+  <script src="https://shaka-player-demo.appspot.com/dist/shaka-player.ui.js"></script>
+  <link rel="stylesheet" href="https://shaka-player-demo.appspot.com/dist/controls.css" />
 </head>
-<body>
-  <div class="container">
-    <h1>Professional DRM Video Player</h1>
-    <input id="manifestUri" type="text" placeholder="Enter stream URL">
-    <input id="clearKey" type="text" placeholder="Enter ClearKey as keyid:id">
-    <button id="playButton">Play Video</button>
-    <video id="video" controls></video>
+<body class="bg-black text-white flex items-center justify-center min-h-screen">
+
+  <div class="w-full max-w-4xl p-6 bg-white/5 backdrop-blur-md rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-4 bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 text-transparent bg-clip-text animate-pulse">Shaka DRM Video Player</h1>
+
+    <div class="space-y-4">
+      <input id="manifestUri" type="text" placeholder="Enter Stream link (.mpd or .m3u8)" class="w-full px-4 py-2 rounded-md bg-white text-black placeholder-gray-600 shadow" />
+      <input id="clearKey" type="text" placeholder="Enter ClearKeys (keyid:key,keyid:key,...)" class="w-full px-4 py-2 rounded-md bg-white text-black placeholder-gray-600 shadow" />
+      <button id="playButton" class="w-full py-2 px-6 bg-orange-600 hover:bg-orange-700 transition text-white font-semibold rounded-md shadow">▶️ Play Video</button>
+    </div>
+
+    <div class="mt-6">
+      <video autoplay poster="https://shakaplayer.ddns.net/logo.avif" id="video" data-shaka-player class="w-full rounded-md shadow-lg"></video>
+    </div>
   </div>
 
   <script>
-    const video = document.getElementById('video');
-    const player = new shaka.Player(video);
+    document.getElementById("playButton").addEventListener("click", async () => {
+      const manifestUri = document.getElementById("manifestUri").value;
+      const clearKeyInput = document.getElementById("clearKey").value;
 
-    document.getElementById('playButton').addEventListener('click', () => {
-      const manifestUri = document.getElementById('manifestUri').value;
-      const clearKeyInput = document.getElementById('clearKey').value;
+      const video = document.getElementById("video");
+      const ui = video["ui"];
+      const controls = ui.getControls();
+      const player = controls.getPlayer();
 
-      const [keyId, key] = clearKeyInput.split(':');
-      const clearKeyConfig = {
-        clearKeys: {
-          [keyId]: key
-        }
-      };
-
-      player.configure({
-        drm: {
-          clearKeys: clearKeyConfig.clearKeys
-        }
+      // واجهة تحكم مخصصة
+      ui.configure({
+        controlPanelElements: ["spacer", "rewind", "play_pause", "fast_forward", "playback_rate", "mute", "volume", "time_and_duration", "captions", "language", "quality", "fullscreen", "statistics", "picture_in_picture", "overflow_menu", "skip", "cast", "spacer"],
+        statisticsList: ["width", "height", "playTime", "bufferingTime"],
+        volumeBarColors: { base: "rgba(255,255,255,0.3)", level: "rgba(255,87,34)" },
+        seekBarColors: { base: "#00EC00", buffered: "#fff", played: "#ff5722" }
       });
 
-      player.load(manifestUri).then(() => {
-        console.log('The video has been loaded successfully!');
-      }).catch(error => {
-        console.error('Error loading video:', error);
-      });
+      player.addEventListener("error", e => console.error("🎯 Player Error:", e));
+
+      // إعداد ClearKey متعدد
+      if (clearKeyInput.includes(":")) {
+        const clearKeys = {};
+        const pairs = clearKeyInput.split(",");
+        for (const pair of pairs) {
+          const [keyId, key] = pair.trim().split(":");
+          if (keyId && key) {
+            clearKeys[keyId] = key;
+          }
+        }
+
+        player.configure({
+          drm: {
+            clearKeys: clearKeys
+          }
+        });
+      }
+
+      try {
+        await player.load(manifestUri);
+        console.log("✅ Video loaded successfully");
+      } catch (error) {
+        console.error("❌ Failed to load video:", error);
+        alert("حدث خطأ أثناء تحميل الفيديو");
+      }
     });
-
-    if (window.location.hostname !== 'shakaplayer-drm.vercel.app') {
-      setTimeout(function() {
-        window.location.href = 'https://shakaplayer-drm.vercel.app';
-      }, 15000);
-    }
   </script>
-  </div>
 
-  <div class="footer">
-    &copy; 2024 DRM Video Player. All rights reserved. | <a href="https://shakaplayer-drm.vercel.app" style="color: #ff5722;">Visit our website</a>
-  </div>
 </body>
 </html>
